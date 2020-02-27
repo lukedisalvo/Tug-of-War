@@ -42,7 +42,7 @@ Graphics_Context InitGraphics()
 // When a button is pressed, it is grounded (logic 0)
 #define PRESSED 0
 
-// This function initializes all the peripherals
+// This initializes all the peripherals
 void init_Launchpad_LED1();
 void initialize();
 void TurnOn_Launchpad_LED1();
@@ -77,7 +77,7 @@ void TurnOff_Launchpad_LED1()
 char SwitchStatus_Launchpad_Button1()
 {
     //return (GPIO_getInputPinValue(GPIO_PORT_P1, GPIO_PIN1));
-    return (P1IN & LEFT_BUTTON);
+    return P1IN & LEFT_BUTTON;
 }
 
 //start of initialization of RIGHT button and LED2
@@ -100,11 +100,40 @@ void TurnOff_Launchpad_LED2_GREEN();
 void TurnOn_Launchpad_LED2_BLUE();
 void TurnOff_Launchpad_LED2_BLUE();
 char SwitchStatus_Launchpad_Button2();
+void init_Launchpad_Right_Button();
+void init_Launchpad_Left_Button();
+
+void init_Launchpad_Left_Button()
+{
+    // step 3.1: write a 0 to PxDIR for the specific bit you want
+    P1DIR &= ~LEFT_BUTTON;
+
+    // step 3.2: write a 1 to PxREB for the specific bit you want
+    P1REN |= LEFT_BUTTON;
+
+    // step 3.3: write a 1 to PxOUT for the specific bit you want
+    P1OUT |= LEFT_BUTTON;  // select pull-up
+
+}
+void init_Launchpad_Right_Button()
+{
+    // step 3.1: write a 0 to PxDIR for the specific bit you want
+    P1DIR &= ~RIGHT_BUTTON;
+
+    // step 3.2: write a 1 to PxREB for the specific bit you want
+    P1REN |= RIGHT_BUTTON;
+
+    // step 3.3: write a 1 to PxOUT for the specific bit you want
+    P1OUT |= RIGHT_BUTTON;  // select pull-up
+
+}
 
 void init_Launchpad_LED2()
 {
     // step 3.1: write a 0 to PxDIR for the specific bit you want
     P2DIR &= ~SETTER;
+
+    P1REN |= SETTER;
 
     // step 3.3: write a 1 to PxOUT for the specific bit you want
     P2OUT |= SETTER;  // select pull-up
@@ -149,12 +178,13 @@ void TurnOff_Launchpad_LED2_BLUE()
 }
 char SwitchStatus_Launchpad_Button2()
 {
-    return (P1IN & RIGHT_BUTTON);
+
+    return P1IN & RIGHT_BUTTON;
 }
 
 //Start of the initialization for Buttons S1, S2 and LEDs on Booster pack
 
-// This function initializes all the peripherals
+// This initializes all the peripherals
 void init_Boosterpack_LED();
 void TurnOn_Boosterpack_RED();
 void TurnOff_Boosterpack_RED();
@@ -162,8 +192,13 @@ void TurnOn_Boosterpack_GREEN();
 void TurnOff_Boosterpack_GREEN();
 void TurnOn_Boosterpack_BLUE();
 void TurnOff_Boosterpack_BLUE();
+void init_Boosterpack_Top_Button();
+void init_Boosterpack_Bottom_Button();
+void TurnOn_Boosterpack_Yellow();
+void TurnOff_Boosterpack_Yellow();
 char SwitchStatus_Boosterpack_Button1();
 char SwitchStatus_Boosterpack_Button2();
+
 //Define what is needed
 #define BUTTON_S1 BIT1
 #define BUTTON_S2 BIT5
@@ -172,6 +207,32 @@ char SwitchStatus_Boosterpack_Button2();
 #define BOOSTER_LED_RED BIT6
 #define BOOSTER_LED_GREEN BIT4
 #define BOOSTER_LED_BLUE BIT6
+
+
+void init_Boosterpack_Top_Button()
+{
+    // step 3.1: write a 0 to PxDIR for the specific bit you want
+    P1DIR &= ~BUTTON_S1;
+
+    // step 3.2: write a 1 to PxREB for the specific bit you want
+    P1REN |= BUTTON_S1;
+
+    // step 3.3: write a 1 to PxOUT for the specific bit you want
+    P1OUT |= BUTTON_S1;  // select pull-up
+
+}
+void init_Boosterpack_Bottom_Button()
+{
+    // step 3.1: write a 0 to PxDIR for the specific bit you want
+    P1DIR &= ~BUTTON_S2;
+
+    // step 3.2: write a 1 to PxREB for the specific bit you want
+    P1REN |= BUTTON_S2;
+
+    // step 3.3: write a 1 to PxOUT for the specific bit you want
+    P1OUT |= BUTTON_S2;  // select pull-up
+
+}
 
 void init_Boosterpack_LED()
 {
@@ -218,13 +279,26 @@ void TurnOff_Boosterpack_BLUE()
 
 char SwitchStatus_Boosterpack_Button1()
 {
-    return (P5IN & BUTTON_S1);
+    return P5IN & BUTTON_S1;
 }
 char SwitchStatus_Boosterpack_Button2()
 {
-    return (P3IN & BUTTON_S2);
+    return P3IN & BUTTON_S2;
 }
-
+/*
+void TurnOn_Boosterpack_Yellow()
+{
+    P2OUT = P2OUT & ~BOOSTER_LED_RED;
+    P5DIR = P5DIR & BOOSTER_LED_BLUE;
+    P5DIR = P5DIR | BOOSTER_LED_BLUE;
+    P5OUT = P5OUT | BOOSTER_LED_BLUE;
+}
+void TurnOff_Boosterpack_Yellow()
+{
+    P2OUT = P2OUT & ~BOOSTER_LED_RED;
+    P2OUT = P2OUT & ~BOOSTER_LED_GREEN;
+}
+*/
 void initialize()
 {
 
@@ -236,22 +310,17 @@ void initialize()
     // According to table 12.1 on page 678 of MSP432 User guide,
     // to create an output, all you need is to write a 1 to PxDIR for the specific bit you want
     // A common mistake is to write P1DIR = LEFT_LED instead of P1DIR |= LEFT_LED;
-    P1DIR |= LEFT_LED;  // Same as P1DIR = P1DIR | LEFT_LED;
+    P1DIR |= LEFT_LED;
+    P2DIR |= SETTER;
+    P5DIR |= BOOSTER_REDLED;
+    P2DIR |= SETTER_BOOSTER;
 
 
-    // step 3: Initializing S1 (switch 1 or button 1)
-    // According to the table on page 678 of MSP432 User guide,
-    // to create an input with pull-up resistor, you need to do three things
-    void init_Launchpad_LED1();
-    //Initialize LED2
-
-
-    void init_Launchpad_LED2();
-    //Initialize Boosterpack LEDS
-
-    void init_Boosterpack_LED();
+    init_Launchpad_Left_Button();
+    init_Launchpad_Right_Button();
+    init_Boosterpack_Top_Button();
+    init_Boosterpack_Bottom_Button();
 }
-
 
 
 
@@ -278,8 +347,9 @@ int main(void)
         Graphics_drawString(&context, (int8_t*) buffer, -1, 100, 100, true);
 
         initialize();
-        //If Booster pack button 1 is pressed, then the left side will increase
-        if (SwitchStatus_Boosterpack_Button1() != PRESSED)
+         //if launchpad right button is pressed, the right side will increase
+
+        if (SwitchStatus_Launchpad_Button2() != PRESSED)
             left = left;
         else if (left == 40)
             left = left;
@@ -287,17 +357,15 @@ int main(void)
             left++;
             snprintf(buffer, BUFFER_SIZE, "%02d", left);
             Graphics_drawString(&context, (int8_t*) buffer, -1, 20, 20, true);
-        //if Booster pack button 2 is pressed, the left side will decrease
-        if (SwitchStatus_Boosterpack_Button2() != PRESSED)
+        //if launchpad left button is pressed, the right side will decrease
+        if (SwitchStatus_Launchpad_Button1() != PRESSED)
             left = left;
         else if (left == 0)
             left = left;
         else
             left--;
-            snprintf(buffer, BUFFER_SIZE, "%02d", left);
-            Graphics_drawString(&context, (int8_t*) buffer, -1, 20, 20, true);
-         //if Launchpad button 1 is pressed, the right side will increase
-        if (SwitchStatus_Launchpad_Button1() != PRESSED)
+        //if Boosterpack top button is pressed, the right side will decrease
+        if (SwitchStatus_Boosterpack_Button1() != PRESSED)
             right = right;
         else if (right == 40)
             right = right;
@@ -305,8 +373,8 @@ int main(void)
             right++;
             snprintf(buffer, BUFFER_SIZE, "%02d", right);
             Graphics_drawString(&context, (int8_t*) buffer, -1, 100, 100, true);
-        //if Launchpad button 2 is pressed, the right side will increase
-        if (SwitchStatus_Launchpad_Button2() != PRESSED)
+        //if Boosterpack bottom button is pressed, the right side will decrease
+        if (SwitchStatus_Boosterpack_Button2() != PRESSED)
             right = right;
         else if (right == 0)
             right = right;
@@ -315,48 +383,45 @@ int main(void)
             snprintf(buffer, BUFFER_SIZE, "%02d", right);
             Graphics_drawString(&context, (int8_t*) buffer, -1, 100, 100, true);
 
+
+
         //If the difference between left and right is within 10, then LED1 is on
         if (left - right <= 10)
             TurnOn_Launchpad_LED1();
         else
             TurnOff_Launchpad_LED1();
-        //If the difference between left and right is between 10 and 20, then BLED LED is red
+        //If the difference between left and right is between 10 and 20, then BLED is red
         if (left - right >= 10 && left - right <= 20)
-            TurnOn_Launchpad_LED2_RED();
-        else
-            TurnOff_Launchpad_LED2_RED();
-        //If the difference is between 20 and 30, then BLED LED is Green
-        if (left - right >= 20 && left - right <= 30)
-            TurnOn_Launchpad_LED2_GREEN();
-        else
-            TurnOff_Launchpad_LED2_GREEN();
-        //If the difference is between 30 and 40, then BLED LED is blue
-        if (left - right >= 30 && left - right <= 40)
-            TurnOn_Launchpad_LED2_BLUE();
-        else
-            TurnOff_Launchpad_LED2_BLUE();
-        ////If the difference is between 10 and 20, then Boosterpack LED is red
-        if (right - left >=10 && right - left <=20)
             TurnOn_Boosterpack_RED();
         else
             TurnOff_Boosterpack_RED();
-        //If the difference is between 20 and 30, then Boosterpack LED is GREEN
-        if (right - left >=20 && right - left <=30)
+        //If the difference is between 20 and 30, then BLED LED is Green
+        if (left - right >= 20 && left - right <= 30)
             TurnOn_Boosterpack_GREEN();
         else
             TurnOff_Boosterpack_GREEN();
-        //If the difference is between 30 and 40, then Boosterpack LED is BLUE
-        if (right - left >=30 && right - left <= 40)
+        //If the difference is between 30 and 40, then BLED LED is blue
+        if (left - right >= 30 && left - right <= 40)
             TurnOn_Boosterpack_BLUE();
         else
             TurnOff_Boosterpack_BLUE();
-
-
+        //If the difference is between 10 and 20, then launchpad LED is red
+        if (right - left >= 10 && right - left <= 20)
+            TurnOn_Launchpad_LED2_RED();
+        else
+            TurnOff_Launchpad_LED2_RED();
+        //If the difference is between 20 and 30, then launchpad LED is GREEN
+        if (right - left >= 20 && right - left <= 30)
+            TurnOn_Launchpad_LED2_GREEN();
+        else
+            TurnOff_Launchpad_LED2_GREEN();
+        //If the difference is between 30 and 40, then launchpad LED is BLUE
+        if (right - left >= 30 && right - left <= 40)
+            TurnOn_Launchpad_LED2_BLUE();
+        else
+            TurnOff_Launchpad_LED2_BLUE();
 
         }
-
-
-
 
 
 }
