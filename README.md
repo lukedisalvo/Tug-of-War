@@ -1,24 +1,19 @@
-## Example Summary
+## Tug of War Game
+This repository contains the code for a Tug-of-War project using Texas Instrument's MSP432 microcontroller.
 
-This demo uses the MSP432 built-in eUSCI module in I2C mode to initialize and gather light data from the digital ambient light sensor, OPT3001, on the Educational BoosterPack MKII. The measured illuminance value (Lux) is displayed on the BoosterPack's colored 128x128 dot-matrix LCD. Using MSP Graphics Library, the MSP432 sends data to the LCD's controller through SPI communication to display the data.
+## Description
+Displays two numbers on the screen in which you can increase and decrease the numbers 
+using the button on the microcontroller. Depending on the values of both numbers, and using
+comparison logic, a certain LED will light up. The logic can be summarized below:
 
-## BoosterPack Requirements
+- If the difference between left and right is within 10, LED1 should be RED
+- If left is greater than right by 10 but less than or equal to 20, BLED should be RED
+- If left is greater than right by 20 but less than or equal to 30, BLED should be GREEN
+- If left is greater than right by 30 but less than or equal to 40(capped), BLED should be BLUE
+- If right is greater than left by 10 but less than or equal to 20, LED2 should be RED
+- If right is greater than left by 20 but less than or equal to 30, LED2 should be GREEN
+- If right is greater than left by 30 but less than or equal to 40 (capped), LED2 should be BLUE
 
-This demo requires the [Educational BoosterPack MKII (BOOSTXL-EDUMKII)](http://www.ti.com/tool/BOOSTXL-EDUMKII)paired with the MSP-EXP432P401R LaunchPad
-
-## Example Usage
-
-Upon running the demo, the LCD on the BoosterPack displays the illuminance light sensor data in Lux.
-
-> NOTE: Make sure that **J5 jumper** on the BOOSXL-EDUMKII is connected to **3.LCD BACKLT**
-
-* When ambient light is altered, the MSP432 makes use of the illuminance data and changes the LCD brightness.
-  * LCD backlight brightens when high illuminance value is detected.
-  * LCD backlight dims when low illuminance value is detected.
-
-## Application Design Details
-
-* No-RTOS
-  * Clock System is configured with MCLK = 48 MHz.
-  * EUSCI_B0 is used for SPI communication with the LCD controller.
-  * EUSCI_B1 is used for I2C communication with the OPT3001 digital light sensor.
+## How to Play
+If you have access to Texas Instrument's MSP432 microcontroller and have downloaded CCS (Code Composer Studio),
+then simply importing and running the project with ccs' play button will run the game.
